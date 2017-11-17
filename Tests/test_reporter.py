@@ -2,39 +2,39 @@
 Runs unit tests on Reporters
 '''
 import unittest
+import Tests.utils
 import Reporters, Monitors
 
 class TestBaseReporter(unittest.TestCase):
     def setUp(self):
         self.base_reporter = Reporters.Base_Reporter()
     
-    def test_base_reporter_initialization(self):
-        '''
-        Tests whether the Base_Reporter class initalizes correctly
-        Should have methods update, register and parse_formatting_data.
-        Should have a dictionary, registered_monitors (initally empty)
-        '''
-        for method_name in ('update','register','parse_formatting_data'):
-            self.assertTrue(hasattr(self.base_reporter,method_name),
-                               'BaseReporter has no attribute '+method_name)
-            self.assertTrue(
-                        callable(getattr(self.base_reporter,method_name)),
-                        'Method '+method_name+' is uncallable')
+    # Tests whether the Base_Reporter class initalizes correctly
+    # Should have methods update, register and parse_formatting_data.
+    # Should have a dictionary, registered_monitors (initally empty)
+    def test_initialization_update(self):
+        Tests.utils.check_has_method(self,self.base_reporter,'update')
 
+    def test_initialization_register(self):
+        Tests.utils.check_has_method(self,self.base_reporter,'register')
+
+    def test_initialization_parse_formatting_data(self):
+        Tests.utils.check_has_method(self,self.base_reporter,
+                               'parse_formatting_data')
+
+    def test_initialization_registered_monitors(self):
         self.assertTrue(
                         hasattr(self.base_reporter,'registered_monitors'),
                         'BaseReporter has no attribute registered_monitors')
         self.assertEqual(self.base_reporter.registered_monitors,{})
     
-    def test_register(self):
-        '''
-        Tests the register method of the Base reporter class. 
-        This should take a monitor and some formatting information as
-        inputs. An ID for the monitor should be generated. The monitor's ID,
-        data signiture and formatting information should be added to 
-        dictionary of registered monitors. The monitor's ID should be
-        returned.
-        '''
+    # Tests the register method of the Base reporter class. 
+    # This should take a monitor and some formatting information as
+    # inputs. An ID for the monitor should be generated. The monitor's ID,
+    # data signiture and formatting information should be added to 
+    # dictionary of registered monitors. The monitor's ID should be
+    # returned.
+    def test_register_id_generation(self):
         monitor1, monitor2 = Monitors.Base_Monitor(),Monitors.Base_Monitor()
 
         # tests id generation
@@ -42,6 +42,14 @@ class TestBaseReporter(unittest.TestCase):
         self.assertIsNotNone(id1,'Did not return monitor ID')
         self.assertIn(id1,self.base_reporter.registered_monitors,
                                     'Monitor ID not registered')
+        # tests that id generation is unique
+        id2 = self.base_reporter.register(monitor2,{}) 
+        self.assertNotEqual(id2,id1)
+
+    def test_register_data_recording(self):
+        monitor1, monitor2 = Monitors.Base_Monitor(),Monitors.Base_Monitor()
+
+        id1 = self.base_reporter.register(monitor1,{})
         # tests that monitor information is recorded sucseffully
         monitor1_data = self.base_reporter.registered_monitors[id1]
         self.assertEqual(monitor1_data[0],monitor1.data_signiture,
@@ -49,9 +57,26 @@ class TestBaseReporter(unittest.TestCase):
         self.assertIsNone(monitor1_data[1],'Monitor formatting '
                                 'informaiton recorded incorerectly')
 
-        # tests that id generation is unique
-        id2 = self.base_reporter.register(monitor2,{}) 
-        self.assertNotEqual(id2,id1)
+        # Check that the foramatting data stored is, in fact, what is
+        # returned by parse_formatting_data
+        def parse_formatting_with_data(self,data):
+            return {},data
+
+        self.base_reporter.parse_formatting_data=parse_formatting_with_data
+        id2 = self.base_reporter.regiser(monitor2, 'Some Data')
+        monitor2_data = self.base_reporter.registered_monitors[id2]
+        self.assertEqual(monitor2_data[1],'Some Data')
+        
+    def test_register_incompatable_formatting_data_raises_ValueError(self):
+        
+        def dumby_parse_formatting_data(self,data):
+            return {'random_keyword':str}, None
+
+        self.base_reporter.parse_formatting_data=dumby_parse_formatting_data
+
+        monitor = Monitors.Base_Monitor()
+
+        self.assertRaises(ValueError,self.base_reporter.register,monitor,{})
 
     def test_parse_formatting_data(self):
         '''
@@ -92,36 +117,36 @@ class TestBaseReporter(unittest.TestCase):
         
         self.assertRaises(ValueError,self.base_reporter.update,dud_id)
 
-class Testis_compatable_data_signiture(unittest.TestCase):
+
+class Test_is_compatable_data_signiture(unittest.TestCase):
     '''
     Runs unit tests on the function is_compatable_data_signiture
+    One data signiture is compatable with the second if each element of
+    the first is in the second. Dicts should be acceptable as data 
+    signitures, but carrently only keys are considered
     '''
-    def test_is_compatable_data_signiture(self):
-        '''
-        Unit tests on is_compatable_data_signiture.
-        One data signiture is compatable with the second if each element of
-        the first is in the second. Dicts should be acceptable as data 
-        signitures, but carrently only keys are considered
-        '''
-        is_compatable = Reporters.is_compatable_data_signiture  # for sanity
+    def setUp(self):
+
+        self.is_compatable = Reporters.utils.is_compatable_data_signiture  
 
         # data_signiture1 should be compatable with 2, but not vis versa
-        data_signiture1 = {'name_one':int,'name_2':float}
-        data_signiture2 = {'name_one':int,'name_2':float,'name_3':int}
-
-        self.assertTrue(is_compatable(data_signiture1,data_signiture2),
+        self.data_signiture1 = {'name_one':int,'name_2':float}
+        self.data_signiture2 = {'name_one':int,'name_2':float,'name_3':int}
+    def test_basic_usage(self):
+        self.assertTrue(self.is_compatable(self.data_signiture1,self.data_signiture2),
                             'Compatable data signitures returned false')
 
-        self.assertFalse(is_compatable(data_signiture2,data_signiture1),
+        self.assertFalse(self.is_compatable(self.data_signiture2,self.data_signiture1),
                             'Incompatable data signitures returned true')
-
-        self.assertTrue(is_compatable(data_signiture1,data_signiture1),
+    def test_on_identical_data_signitures(self):
+        self.assertTrue(self.is_compatable(self.data_signiture1,self.data_signiture1),
                             'Giving identical data signtures returned false'
                             )
-        self.assertTrue(is_compatable({},data_signiture1),
+    def test_on_empty_data_signitures(self):
+        self.assertTrue(self.is_compatable({},self.data_signiture1),
                             'The empty data signiture was incompatable with'
                             'another data signiture')
-        self.assertTrue(is_compatable({},{}),
+        self.assertTrue(self.is_compatable({},{}),
                             'Two empty data signitures were incompatable')
 if __name__ == '__main__':
     unittest.main()
