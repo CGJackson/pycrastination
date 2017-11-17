@@ -7,6 +7,8 @@ comunicating with a web or email server, for example.
 They are derived from the Base_Reporter class
 '''
 
+import Reporters.utils
+
 class Base_Reporter():
     '''    
     Reporters output information about the state and progress of the program
@@ -29,9 +31,3 @@ class Cmd_Line_Reporter(Text_Reporter):
     '''
     pass    #TODO
 
-def is_compatable_data_signiture(data_sig_1,data_sig_2):
-    '''
-    Test whether data with the signiture data_sig_2 provides the information
-    required for an operation requiring data_sig_1.
-    '''
-    pass
