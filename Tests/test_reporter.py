@@ -59,7 +59,7 @@ class TestBaseReporter(unittest.TestCase):
 
         # Check that the foramatting data stored is, in fact, what is
         # returned by parse_formatting_data
-        def parse_formatting_with_data(self,data):
+        def parse_formatting_with_data(data):
             return {},data
 
         self.base_reporter.parse_formatting_data=parse_formatting_with_data
@@ -69,7 +69,7 @@ class TestBaseReporter(unittest.TestCase):
         
     def test_register_incompatable_formatting_data_raises_ValueError(self):
         
-        def dumby_parse_formatting_data(self,data):
+        def dumby_parse_formatting_data(data):
             return {'random_keyword':str}, None
 
         self.base_reporter.parse_formatting_data=dumby_parse_formatting_data
@@ -86,8 +86,8 @@ class TestBaseReporter(unittest.TestCase):
         '''
         signiture,formatting = self.base_reporter.parse_formatting_data(
                                                     'dumby formatting data')
-        unittest.IsEqual(signiture,{},'Did not return an empty signiture')
-        unittest.IsNone(formatting, 'Did not return None for formatting '
+        self.assertEqual(signiture,{},'Did not return an empty signiture')
+        self.assertIsNone(formatting, 'Did not return None for formatting '
                                     'data')
 
     def test_update(self):
@@ -112,7 +112,7 @@ class TestBaseReporter(unittest.TestCase):
         self.assertRaises(ValueError,self.base_reporter.update,
                                         monitor_id,some_keyword=0)
         
-        dud_id = self.base_reporter.register(Monitor.Base_Monitor(),{})
+        dud_id = self.base_reporter.register(Monitors.Base_Monitor(),{})
         self.base_reporter.registered_monitors.pop(dud_id)
         
         self.assertRaises(ValueError,self.base_reporter.update,dud_id)

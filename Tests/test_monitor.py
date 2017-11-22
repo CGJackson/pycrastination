@@ -76,7 +76,7 @@ class Test_Base_Monitor(unittest.TestCase):
                 self.register_calls += 1
                 self.register_args.append((monitor,formatting_data))
                 return Reporters.Base_Reporter.register(
-                                               self.monitor,formatting_data)
+                                               self,monitor,formatting_data)
         reporter = Dumby_Reporter()
 
         monitor2 = Monitors.Base_Monitor()
@@ -201,11 +201,11 @@ class Test_Base_Monitor(unittest.TestCase):
             A reporter which records the arguments passed to update
             '''
             def __init__(self):
-                passed_args = []
+                self.passed_args = []
                 Reporters.Base_Reporter.__init__(self)
 
             def update(self,monitor_id,**kwargs):
-                passed_args.append(monitor_id,**kwargs)
+                self.passed_args.append(monitor_id,**kwargs)
                 return Reporters.Base_Reporter.update(
                                                 self,monitor_id,**kwargs)
 
