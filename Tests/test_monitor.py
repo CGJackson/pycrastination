@@ -214,6 +214,8 @@ class Test_Base_Monitor(unittest.TestCase):
         self.monitor.add_reporter(reporter1,{})
         self.monitor.update_reporters()
         
+        # Checks that, for the Base_Monitor, reporteres recieve the 
+        # default data
         self.assertEqual(reporter1.passed_args[-1][0], 
                         (self.monitor.reporters[reporter1]),
                         'Monitor did not pass reporter the correct id')
@@ -221,20 +223,25 @@ class Test_Base_Monitor(unittest.TestCase):
                         'Base_Monitor passed non-trivial data to updated '
                         'reporter')
 
-        self.monitor.data_signiture = {'Dumby':'data','Some':'stuff'}
-        self.monitor.update_reporters()
+        # Checks that reporters still recieve the correct data for 
+        # with non-trivial data
+        self.monitor2 = Monitors.Base_Monitor()
+        self.monitor2.data_signiture = {'Dumby':'data','Some':'stuff'}
+        self.monitor2.add_reporter(reporter1,{})
+        self.monitor2.update_reporters()
         self.assertEqual(reporter1.passed_args[-1][0], 
-                        (self.monitor.reporters[reporter1][0]),
+                        (self.monitor2.reporters[reporter1]),
                         'Monitor did not pass reporter the correct id when '
                         'given non-trivial extra data')
         self.assertEqual(reporter1.passed_args[-1][1],
-                        self.monitor.data_signiture,
+                        self.monitor2.data_signiture,
                         'Did not pass correct data to updated reporters')
 
+        # Checks that a second reporter also recieve the correct data
         self.monitor.add_reporter(reporter2,{})
-        self.update_reporters()
+        self.monitor.update_reporters()
         self.assertEqual(reporter1.passed_args[-1][0], 
-                        (self.monitor.reporters[reporter1][0]),
+                        (self.monitor.reporters[reporter1]),
                         'Monitor did not pass the correct id to the first '
                         'updated reporter of 2')
         self.assertEqual(reporter1.passed_args[-1][1],
@@ -242,7 +249,7 @@ class Test_Base_Monitor(unittest.TestCase):
                         'Did not pass correct data to first updated'
                         'reporter of 2')
         self.assertEqual(reporter2.passed_args[-1][0], 
-                        (self.monitor.reporters[reporter2][0]),
+                        (self.monitor.reporters[reporter2]),
                         'Monitor did not pass the correct id to the second '
                         'updated reporter of 2')
         self.assertEqual(reporter2.passed_args[-1][1],
