@@ -45,7 +45,7 @@ class Base_Reporter():
         
         # The formatting data is processed by the parse_formatting_data 
         # method. This method will generally be overwritten in subclasses
-        required_signiture, *parsed_formatting_information = (
+        required_signiture, parsed_formatting_information = (
                                 self.parse_formatting_data(formatting_data)
                                                        )
         # It is checked that the monitor will proved the information
@@ -88,10 +88,14 @@ class Base_Reporter():
         by any number of keyword arguemnts. The keyword arguments are
         interpreted by comparing withthe monitor's data signiture.
         '''
-        if not Reporters.utils.is_compatable_data_signiture(kwargs,
+        try:
+            if not Reporters.utils.is_compatable_data_signiture(kwargs,
                                 self.registered_monitors[monitor_id][0]):
-            raise ValueError("Data in update not compatable with the "
+                raise ValueError("Data in update not compatable with the "
                              "passing monitor's data signiture")
+        except KeyError:
+                raise ValueError('ID does not corrispond to a registered'
+                                 ' Monitor')
 
 class Text_Reporter(Base_Reporter):
     '''

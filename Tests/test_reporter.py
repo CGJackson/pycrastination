@@ -63,7 +63,7 @@ class TestBaseReporter(unittest.TestCase):
             return {},data
 
         self.base_reporter.parse_formatting_data=parse_formatting_with_data
-        id2 = self.base_reporter.regiser(monitor2, 'Some Data')
+        id2 = self.base_reporter.register(monitor2, 'Some Data')
         monitor2_data = self.base_reporter.registered_monitors[id2]
         self.assertEqual(monitor2_data[1],'Some Data')
         

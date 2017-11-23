@@ -205,7 +205,7 @@ class Test_Base_Monitor(unittest.TestCase):
                 Reporters.Base_Reporter.__init__(self)
 
             def update(self,monitor_id,**kwargs):
-                self.passed_args.append(monitor_id,**kwargs)
+                self.passed_args.append((monitor_id,kwargs))
                 return Reporters.Base_Reporter.update(
                                                 self,monitor_id,**kwargs)
 
@@ -213,8 +213,9 @@ class Test_Base_Monitor(unittest.TestCase):
         
         self.monitor.add_reporter(reporter1,{})
         self.monitor.update_reporters()
+        
         self.assertEqual(reporter1.passed_args[-1][0], 
-                        (self.monitor.reporters[reporter1][0]),
+                        (self.monitor.reporters[reporter1]),
                         'Monitor did not pass reporter the correct id')
         self.assertEqual(reporter1.passed_args[-1][1],{},
                         'Base_Monitor passed non-trivial data to updated '
